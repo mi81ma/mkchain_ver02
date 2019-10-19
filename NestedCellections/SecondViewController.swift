@@ -20,6 +20,11 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
     var stopBlueImage: UIImageView!
     var recordingRedImage: UIImageView!
 
+
+    // Play ボタン
+    var playStartButton: UIButton!
+    var playStopButton: UIButton!
+
     var audioRecorder: AVAudioRecorder!
     var audioPlayer: AVAudioPlayer!
     var isRecording = false
@@ -47,7 +52,7 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
         // ============================
 
         recordingButton = {
-            let uiButton: UIButton = UIButton(frame: CGRect(x: (view.frame.width - 250)/2, y: view.frame.height - 250 - 85, width: 250, height: 250))
+            let uiButton: UIButton = UIButton(frame: CGRect(x: (view.frame.width - 250)/2, y: view.frame.height - 250 - 50, width: 250, height: 250))
 
             uiButton.setImage(#imageLiteral(resourceName: "microPhoneBlue"), for: .normal)
             uiButton.contentMode = .scaleToFill
@@ -71,7 +76,7 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
 
 
         redRecordingButton = {
-            let uiButton: UIButton = UIButton(frame: CGRect(x: (view.frame.width - 250)/2, y: view.frame.height - 250 - 85, width: 250, height: 250))
+            let uiButton: UIButton = UIButton(frame: CGRect(x: (view.frame.width - 250)/2, y: view.frame.height - 250 - 50, width: 250, height: 250))
 
             uiButton.setImage(#imageLiteral(resourceName: "microPhoneRed"), for: .normal)
             uiButton.contentMode = .scaleToFill
@@ -87,8 +92,28 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
             return imageView
         }()
 
+        // ============================
+        // Playボタン
+        // =============================
 
-        view.addSubview(recordingButton)
+        playStartButton = {
+            let uiButton: UIButton = UIButton(frame: CGRect(x: (view.frame.width - 150)/2, y: 40, width: 150, height: 60))
+
+            uiButton.setImage(#imageLiteral(resourceName: "playStartButton"), for: .normal)
+            uiButton.contentMode = .scaleToFill
+            uiButton.addTarget(self, action: #selector(play), for: .touchUpInside)
+            return uiButton
+        }()
+
+        playStopButton = {
+            let uiButton: UIButton = UIButton(frame: CGRect(x: (view.frame.width - 150)/2, y: 40, width: 150, height: 60))
+
+            uiButton.setImage(#imageLiteral(resourceName: "playStopButton"), for: .normal)
+            uiButton.contentMode = .scaleToFill
+            uiButton.addTarget(self, action: #selector(play), for: .touchUpInside)
+            return uiButton
+        }()
+
 
         view.addSubview(recordingButton)
         view.addSubview(stopBlueImage)
@@ -129,7 +154,7 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
             // "録音中"の状態
 //            recordingLabel.text = "Now Recording"
 //            recordingButton.setTitle("STOP", for: .normal)
-//            playButton.isEnabled = false
+            playStartButton.isEnabled = false
 
             // 録音ボタンを削除して、録音中ボタンを表示する
             recordingButton.removeFromSuperview()
@@ -147,9 +172,7 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
             audioRecorder.stop()
             isRecording = false
 
-//            recordingLabel.text = "Record Stopping"
-//            recordingButton.setTitle("RECORD", for: .normal)
-//            playButton.isEnabled = true
+            playStartButton.isEnabled = true
 
             // 録音中ボタンを削除して、録音ボタンを表示する
             redRecordingButton.removeFromSuperview()
@@ -158,6 +181,9 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
             // 録音中イメージを削除して、録音イメージを表示する
             recordingRedImage.removeFromSuperview()
             view.addSubview(stopBlueImage)
+
+            // playボタンを表示する
+            view.addSubview(playStartButton)
 
         }
     }
@@ -169,6 +195,35 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
         let url = docsDirect.appendingPathComponent("recording.m4a")
         return url
     }
+
+
+    // ========= Play Button Function ===========
+    @objc func play(){
+           if !isPlaying {
+
+               audioPlayer = try! AVAudioPlayer(contentsOf: getURL())
+               audioPlayer.delegate = self
+               audioPlayer.play()
+
+               isPlaying = true
+
+            playStartButton.removeFromSuperview()
+            view.addSubview(playStopButton)
+
+               recordingButton.isEnabled = false
+
+           }else{
+
+               audioPlayer.stop()
+               isPlaying = false
+
+            playStopButton.removeFromSuperview()
+            view.addSubview(playStartButton)
+
+               recordingButton.isEnabled = true
+
+           }
+       }
 
 
 
