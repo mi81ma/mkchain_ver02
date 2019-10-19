@@ -15,6 +15,10 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
     var recordingLabel: UILabel!
 
     var recordingButton: UIButton!
+    var redRecordingButton: UIButton!
+
+    var stopBlueImage: UIImageView!
+    var recordingRedImage: UIImageView!
 
     var audioRecorder: AVAudioRecorder!
     var audioPlayer: AVAudioPlayer!
@@ -34,41 +38,60 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
         super.viewDidLoad()
 
 
-        view.backgroundColor = UIColor.darkGray
-        view.addSubview(backgroundImageView)
-        backgroundImageView.anchor(top: view.topAnchor, leading: view.leadingAnchor, bottom: view.bottomAnchor, trailing: view.trailingAnchor, padding: .init(top: 0, left: 0, bottom: 0, right: 0), size: .init(width: view.frame.width, height: view.frame.height))
+        view.backgroundColor = UIColor.white
 
 
+
+        // ============================
+        // 停止中のボタン＆ラベル
+        // ============================
 
         recordingButton = {
             let uiButton: UIButton = UIButton(frame: CGRect(x: (view.frame.width - 250)/2, y: view.frame.height - 250 - 85, width: 250, height: 250))
 
             uiButton.setImage(#imageLiteral(resourceName: "microPhoneBlue"), for: .normal)
             uiButton.contentMode = .scaleToFill
-//            uiButton.addTarget(self, action: #selector(onClickMyButton(sender:)), for: .touchUpInside)
+
             uiButton.addTarget(self, action: #selector(onClickRecord), for: .touchUpInside)
             return uiButton
         }()
 
 
-        recordingLabel = {
+        stopBlueImage = {
+            let imageView:UIImageView = UIImageView(frame: CGRect(x: (view.frame.width - 260)/2, y: (view.frame.height - 260)/2 - 100, width: 260, height: 260))
+            imageView.image = #imageLiteral(resourceName: "recordingBlue")
 
-            let label = UILabel(frame: CGRect(x: (view.frame.width - 250)/2, y: view.frame.height - 250 - 85, width: 250, height: 250))
-
-            label.text = "not recording"
-
-            return label
-
+            return imageView
         }()
 
 
+        // ============================
+        // 録音中のボタン＆ラベル
+        // =============================
 
 
-//        self.view.addSubview(backImage)
+        redRecordingButton = {
+            let uiButton: UIButton = UIButton(frame: CGRect(x: (view.frame.width - 250)/2, y: view.frame.height - 250 - 85, width: 250, height: 250))
+
+            uiButton.setImage(#imageLiteral(resourceName: "microPhoneRed"), for: .normal)
+            uiButton.contentMode = .scaleToFill
+            uiButton.addTarget(self, action: #selector(onClickRecord), for: .touchUpInside)
+            return uiButton
+        }()
+
+
+        recordingRedImage = {
+            let imageView:UIImageView = UIImageView(frame: CGRect(x: (view.frame.width - 260)/2, y: (view.frame.height - 260)/2 - 100, width: 260, height: 260))
+            imageView.image = #imageLiteral(resourceName: "recordingRed")
+
+            return imageView
+        }()
+
+
         view.addSubview(recordingButton)
 
-          view.addSubview(recordingButton)
-        view.addSubview(recordingLabel)
+        view.addSubview(recordingButton)
+        view.addSubview(stopBlueImage)
 
     }
 
@@ -79,21 +102,6 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
 
     }
 
-        /*
-     ボタンイベント.
-     */
-
-//    @objc func onClickMyButton(sender: UIButton){
-//
-//        // 遷移するViewを定義する.
-//        let mySecondViewController: UIViewController = ThirdViewController()
-//
-//        // アニメーションを設定する.
-//        mySecondViewController.modalTransitionStyle = .coverVertical
-//
-//        // Viewの移動する.
-//        present(mySecondViewController, animated: false, completion: nil)
-//    }
 
 
 
@@ -118,18 +126,38 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
 
             isRecording = true
 
-            recordingLabel.text = "Now Recording"
-            recordingButton.setTitle("STOP", for: .normal)
+            // "録音中"の状態
+//            recordingLabel.text = "Now Recording"
+//            recordingButton.setTitle("STOP", for: .normal)
 //            playButton.isEnabled = false
 
+            // 録音ボタンを削除して、録音中ボタンを表示する
+            recordingButton.removeFromSuperview()
+            view.addSubview(redRecordingButton)
+
+            // 録音イメージを削除して、録音中イメージを表示する
+            stopBlueImage.removeFromSuperview()
+            view.addSubview(recordingRedImage)
+
+
         }else{
+
+            // "録音中が停止している状態"
 
             audioRecorder.stop()
             isRecording = false
 
-            recordingLabel.text = "Record Stopping"
-            recordingButton.setTitle("RECORD", for: .normal)
+//            recordingLabel.text = "Record Stopping"
+//            recordingButton.setTitle("RECORD", for: .normal)
 //            playButton.isEnabled = true
+
+            // 録音中ボタンを削除して、録音ボタンを表示する
+            redRecordingButton.removeFromSuperview()
+            view.addSubview(recordingButton)
+
+            // 録音中イメージを削除して、録音イメージを表示する
+            recordingRedImage.removeFromSuperview()
+            view.addSubview(stopBlueImage)
 
         }
     }
