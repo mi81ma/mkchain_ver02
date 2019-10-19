@@ -7,8 +7,19 @@
 //
 
 import UIKit
+import AVFoundation
 
-class SecondViewController: UIViewController {
+class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDelegate {
+
+    // ラベルを作成する
+    var recordingLabel: UILabel!
+
+    var recordingButton: UIButton!
+
+    var audioRecorder: AVAudioRecorder!
+    var audioPlayer: AVAudioPlayer!
+    var isRecording = false
+    var isPlaying = false
 
     var backgroundImageView: UIImageView = {
 
@@ -29,22 +40,35 @@ class SecondViewController: UIViewController {
 
 
 
-        var imageButton: UIButton = {
+        recordingButton = {
             let uiButton: UIButton = UIButton(frame: CGRect(x: (view.frame.width - 250)/2, y: view.frame.height - 250 - 85, width: 250, height: 250))
 
             uiButton.setImage(#imageLiteral(resourceName: "microPhoneBlue"), for: .normal)
             uiButton.contentMode = .scaleToFill
-            uiButton.addTarget(self, action: #selector(onClickMyButton(sender:)), for: .touchUpInside)
+//            uiButton.addTarget(self, action: #selector(onClickMyButton(sender:)), for: .touchUpInside)
+            uiButton.addTarget(self, action: #selector(onClickRecord), for: .touchUpInside)
             return uiButton
+        }()
+
+
+        recordingLabel = {
+
+            let label = UILabel(frame: CGRect(x: (view.frame.width - 250)/2, y: view.frame.height - 250 - 85, width: 250, height: 250))
+
+            label.text = "not recording"
+
+            return label
+
         }()
 
 
 
 
 //        self.view.addSubview(backImage)
-        view.addSubview(imageButton)
+        view.addSubview(recordingButton)
 
-          view.addSubview(imageButton)
+          view.addSubview(recordingButton)
+        view.addSubview(recordingLabel)
 
     }
 
@@ -59,16 +83,63 @@ class SecondViewController: UIViewController {
      ボタンイベント.
      */
 
-    @objc func onClickMyButton(sender: UIButton){
+//    @objc func onClickMyButton(sender: UIButton){
+//
+//        // 遷移するViewを定義する.
+//        let mySecondViewController: UIViewController = ThirdViewController()
+//
+//        // アニメーションを設定する.
+//        mySecondViewController.modalTransitionStyle = .coverVertical
+//
+//        // Viewの移動する.
+//        present(mySecondViewController, animated: false, completion: nil)
+//    }
 
-        // 遷移するViewを定義する.
-        let mySecondViewController: UIViewController = ThirdViewController()
 
-        // アニメーションを設定する.
-        mySecondViewController.modalTransitionStyle = .coverVertical
 
-        // Viewの移動する.
-        present(mySecondViewController, animated: false, completion: nil)
+//  ============= Audio ===============
+    @objc func onClickRecord(){
+        if !isRecording {
+
+            let session = AVAudioSession.sharedInstance()
+            try! session.setCategory(AVAudioSession.Category.playAndRecord)
+            try! session.setActive(true)
+
+            let settings = [
+                AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+                AVSampleRateKey: 44100,
+                AVNumberOfChannelsKey: 2,
+                AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+            ]
+
+            audioRecorder = try! AVAudioRecorder(url: getURL(), settings: settings)
+            audioRecorder.delegate = self
+            audioRecorder.record()
+
+            isRecording = true
+
+            recordingLabel.text = "Now Recording"
+            recordingButton.setTitle("STOP", for: .normal)
+//            playButton.isEnabled = false
+
+        }else{
+
+            audioRecorder.stop()
+            isRecording = false
+
+            recordingLabel.text = "Record Stopping"
+            recordingButton.setTitle("RECORD", for: .normal)
+//            playButton.isEnabled = true
+
+        }
+    }
+
+
+    func getURL() -> URL{
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let docsDirect = paths[0]
+        let url = docsDirect.appendingPathComponent("recording.m4a")
+        return url
     }
 
 

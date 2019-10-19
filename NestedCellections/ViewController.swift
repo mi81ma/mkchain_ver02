@@ -28,13 +28,6 @@ class ViewController: UIViewController {
         backgroundImageView.anchor(top: view.topAnchor, leading: view.leadingAnchor, bottom: view.bottomAnchor, trailing: view.trailingAnchor, padding: .init(top: 0, left: 0, bottom: 0, right: 0), size: .init(width: view.frame.width, height: view.frame.height))
 
 
-//        var backImage: UIImageView = {
-//            let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
-//
-//            imageView.image = #imageLiteral(resourceName: "background_img")
-//
-//            return imageView
-//        }()
 
 
         var imageButton: UIButton = {
@@ -51,7 +44,6 @@ class ViewController: UIViewController {
 //        self.view.addSubview(backImage)
         view.addSubview(imageButton)
 
-//          view.addSubview(imageButton)
 
     }
 
