@@ -21,6 +21,16 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
     var recordingRedImage: UIImageView!
 
 
+    // Timer ラベル
+    weak var timer: Timer!          //追加
+    var startTime = Date()
+
+    var minute: UILabel!
+    var seconds: UILabel!
+    var miniSeconds: UILabel!
+
+
+
     // Play ボタン
     var playStartButton: UIButton!
     var playStopButton: UIButton!
@@ -47,6 +57,8 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
 
 
         view.backgroundColor = UIColor.white
+
+
 
 
 
@@ -127,13 +139,15 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
 
             uiButton.setImage(#imageLiteral(resourceName: "uploadButton"), for: .normal)
             uiButton.contentMode = .scaleToFill
-            uiButton.addTarget(self, action: #selector(logoutAlertController), for: .touchUpInside)
+            uiButton.addTarget(self, action: #selector(onClickMyButton), for: .touchUpInside)
             return uiButton
         }()
 
 
         view.addSubview(recordingButton)
         view.addSubview(stopBlueImage)
+
+
 
     }
 
@@ -149,7 +163,7 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
     // Alert Func
     @objc func logoutAlertController() {
 
-        let alertController = UIAlertController(title: "Upload this voice file?", message: "If agree our plivacy policy and upload this voice file to our server, pleas choose Upload button", preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Upload this voice file?", message: "If agree our plivacy policy and upload this voice file to our server, please choose Upload button", preferredStyle: .alert)
         let logoutAction = UIAlertAction(title: "Cancel", style: .destructive) { (action: UIAlertAction!) in
             print("Cancel")
 
@@ -270,6 +284,131 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
            }
        }
 
+
+    //    ここから
+    @objc func timerCounter() {
+
+        let currentTime = Date().timeIntervalSince(startTime)
+        let minutelo = (Int)(fmod((currentTime/60), 60))
+        let second = (Int)(fmod(currentTime, 60))
+
+        let msec = (Int)((currentTime - floor(currentTime))*100)
+
+        let sMinute = String(format:"%02d", minutelo)
+        let sSecond = String(format:"%02d", second)
+        let sMsec = String(format:"%02d", msec)
+
+        minute.text = sMinute
+        seconds.text = sSecond
+        miniSeconds.text = sMsec
+
+    }
+
+
+
+    // convert m4a to WAV
+    func convertAudio(_ url: URL, outputURL: URL) {
+        var error : OSStatus = noErr
+        var destinationFile: ExtAudioFileRef? = nil
+        var sourceFile : ExtAudioFileRef? = nil
+
+        var srcFormat : AudioStreamBasicDescription = AudioStreamBasicDescription()
+        var dstFormat : AudioStreamBasicDescription = AudioStreamBasicDescription()
+
+        ExtAudioFileOpenURL(url as CFURL, &sourceFile)
+
+        var thePropertySize: UInt32 = UInt32(MemoryLayout.stride(ofValue: srcFormat))
+
+        ExtAudioFileGetProperty(sourceFile!,
+                                kExtAudioFileProperty_FileDataFormat,
+                                &thePropertySize, &srcFormat)
+
+        dstFormat.mSampleRate = 44100  //Set sample rate
+        dstFormat.mFormatID = kAudioFormatLinearPCM
+        dstFormat.mChannelsPerFrame = 1
+        dstFormat.mBitsPerChannel = 16
+        dstFormat.mBytesPerPacket = 2 * dstFormat.mChannelsPerFrame
+        dstFormat.mBytesPerFrame = 2 * dstFormat.mChannelsPerFrame
+        dstFormat.mFramesPerPacket = 1
+        dstFormat.mFormatFlags = kLinearPCMFormatFlagIsPacked |
+        kAudioFormatFlagIsSignedInteger
+
+        // Create destination file
+        error = ExtAudioFileCreateWithURL(
+            outputURL as CFURL,
+            kAudioFileWAVEType,
+            &dstFormat,
+            nil,
+            AudioFileFlags.eraseFile.rawValue,
+            &destinationFile)
+        print("Error 1 in convertAudio: \(error.description)")
+
+        error = ExtAudioFileSetProperty(sourceFile!,
+                                        kExtAudioFileProperty_ClientDataFormat,
+                                        thePropertySize,
+                                        &dstFormat)
+        print("Error 2 in convertAudio: \(error.description)")
+
+        error = ExtAudioFileSetProperty(destinationFile!,
+                                        kExtAudioFileProperty_ClientDataFormat,
+                                        thePropertySize,
+                                        &dstFormat)
+        print("Error 3 in convertAudio: \(error.description)")
+
+        let bufferByteSize : UInt32 = 32768
+        var srcBuffer = [UInt8](repeating: 0, count: 32768)
+        var sourceFrameOffset : ULONG = 0
+
+        while(true){
+            var fillBufList = AudioBufferList(
+                mNumberBuffers: 1,
+                mBuffers: AudioBuffer(
+                    mNumberChannels: 2,
+                    mDataByteSize: UInt32(srcBuffer.count),
+                    mData: &srcBuffer
+                )
+            )
+            var numFrames : UInt32 = 0
+
+            if(dstFormat.mBytesPerFrame > 0){
+                numFrames = bufferByteSize / dstFormat.mBytesPerFrame
+            }
+
+            error = ExtAudioFileRead(sourceFile!, &numFrames, &fillBufList)
+            print("Error 4 in convertAudio: \(error.description)")
+
+            if(numFrames == 0){
+                error = noErr;
+                break;
+            }
+
+            sourceFrameOffset += numFrames
+            error = ExtAudioFileWrite(destinationFile!, numFrames, &fillBufList)
+            print("Error 5 in convertAudio: \(error.description)")
+        }
+
+        error = ExtAudioFileDispose(destinationFile!)
+        print("Error 6 in convertAudio: \(error.description)")
+        error = ExtAudioFileDispose(sourceFile!)
+        print("Error 7 in convertAudio: \(error.description)")
+    }
+
+
+
+     /*
+     ボタンイベント. 画面遷移。
+     */
+    @objc func onClickMyButton(sender: UIButton){
+
+        // 遷移するViewを定義する.
+        let mySecondViewController: UIViewController = inputNameGenderBMI()
+
+        // アニメーションを設定する.
+        mySecondViewController.modalTransitionStyle = .coverVertical
+
+        // Viewの移動する.
+        present(mySecondViewController, animated: false, completion: nil)
+    }
 
 
 }
