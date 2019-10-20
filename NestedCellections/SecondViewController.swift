@@ -25,6 +25,9 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
     var playStartButton: UIButton!
     var playStopButton: UIButton!
 
+    // Upload ボタン
+    var uploadButton: UIButton!
+
     var audioRecorder: AVAudioRecorder!
     var audioPlayer: AVAudioPlayer!
     var isRecording = false
@@ -48,7 +51,7 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
 
 
         // ============================
-        // 停止中のボタン＆ラベル
+        // 停止中のボタン＆ラベル in ViewDidload
         // ============================
 
         recordingButton = {
@@ -71,7 +74,7 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
 
 
         // ============================
-        // 録音中のボタン＆ラベル
+        // 録音中のボタン＆ラベル in ViewDidload
         // =============================
 
 
@@ -93,11 +96,11 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
         }()
 
         // ============================
-        // Playボタン
+        // Playボタン in ViewDidload
         // =============================
 
         playStartButton = {
-            let uiButton: UIButton = UIButton(frame: CGRect(x: (view.frame.width - 150)/2, y: 40, width: 150, height: 60))
+            let uiButton: UIButton = UIButton(frame: CGRect(x: 10, y: 40, width: 150, height: 60))
 
             uiButton.setImage(#imageLiteral(resourceName: "playStartButton"), for: .normal)
             uiButton.contentMode = .scaleToFill
@@ -106,11 +109,25 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
         }()
 
         playStopButton = {
-            let uiButton: UIButton = UIButton(frame: CGRect(x: (view.frame.width - 150)/2, y: 40, width: 150, height: 60))
+            let uiButton: UIButton = UIButton(frame: CGRect(x: 10, y: 40, width: 150, height: 60))
 
             uiButton.setImage(#imageLiteral(resourceName: "playStopButton"), for: .normal)
             uiButton.contentMode = .scaleToFill
             uiButton.addTarget(self, action: #selector(play), for: .touchUpInside)
+            return uiButton
+        }()
+
+
+        // ============================
+        // Uploadボタン in ViewDidload
+        // =============================
+
+        uploadButton = {
+            let uiButton: UIButton = UIButton(frame: CGRect(x: view.frame.width - 150 - 10, y: 40, width: 150, height: 60))
+
+            uiButton.setImage(#imageLiteral(resourceName: "uploadButton"), for: .normal)
+            uiButton.contentMode = .scaleToFill
+            uiButton.addTarget(self, action: #selector(logoutAlertController), for: .touchUpInside)
             return uiButton
         }()
 
@@ -121,11 +138,35 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
     }
 
 
-
     override func viewDidLayoutSubviews() {
 
 
     }
+
+
+
+
+    // Alert Func
+    @objc func logoutAlertController() {
+
+        let alertController = UIAlertController(title: "Upload this voice file?", message: "If agree our plivacy policy and upload this voice file to our server, pleas choose Upload button", preferredStyle: .alert)
+        let logoutAction = UIAlertAction(title: "Cancel", style: .destructive) { (action: UIAlertAction!) in
+            print("Cancel")
+
+        }
+
+
+        let cancelAction = UIAlertAction(title: "Uploard", style: .default, handler: { (action: UIAlertAction!) in
+            print("Upload")
+        })
+
+        alertController.addAction(logoutAction)
+        alertController.addAction(cancelAction)
+        present(alertController, animated: true, completion: nil)
+    }
+
+
+
 
 
 
@@ -184,6 +225,10 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
 
             // playボタンを表示する
             view.addSubview(playStartButton)
+
+
+            // upLoadボタンを表示する
+            view.addSubview(uploadButton)
 
         }
     }
