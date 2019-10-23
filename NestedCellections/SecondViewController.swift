@@ -50,16 +50,11 @@ class SecondViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPl
     }()
 
 
-
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
 
         view.backgroundColor = UIColor.white
-
-
-
 
 
         // ============================

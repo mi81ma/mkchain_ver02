@@ -11,26 +11,6 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-//    // ----------------------------
-//    var window: UIWindow?
-//
-//
-//    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-//
-//
-//        window = UIWindow()
-//        window?.makeKeyAndVisible()
-//
-//        let moviesListController = MoviesListController(collectionViewLayout: UICollectionViewFlowLayout())
-//        let navController = UINavigationController(rootViewController: moviesListController)
-//        window?.rootViewController =   navController
-//
-//
-//        return true
-//    }
-//    // ----------------------------
-
     var window: UIWindow?
 
 
@@ -38,9 +18,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
 
         window = UIWindow()
-
         window?.makeKeyAndVisible()
-        let viewController = ViewController()
+
+        
+        let viewController = FileListView()
         window?.rootViewController = viewController
 
         return true
